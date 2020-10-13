@@ -31,7 +31,17 @@ ws.addListener('message', (data) => {
         const content = clipboard.readText();
         if (content !== null && lastContent !== content) {
             lastContent = content;
-            instance.post('/copy', JSON.stringify({content: lastContent}));
+            console.log('post /copy');
+            instance.post('/copy', JSON.stringify({content: lastContent}), {
+                headers: {
+                  // Overwrite Axios's automatically set Content-Type
+                  'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                console.log(response.data);
+            }).catch((exception) => {
+                console.log(exception);
+            });
         }
         setTimeout(poll, 500);
     }, 0);
@@ -53,9 +63,8 @@ app.on('ready', () => {
     }).catch((exception) => {
         console.log(exception);
     });
-});
 
-
-app.on('window-all-closed', () => {
-    app.quit()
+    if (app.dock) {
+        app.dock.hide();
+    }
 });
